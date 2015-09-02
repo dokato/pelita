@@ -15,6 +15,12 @@
 .metadata
 .pydevproject
 
+# Idea
+.idea
+
+# IPython notebook
+.ipynb_checkpoints
+
 # other generic files to ignore
 *~
 *.lock
