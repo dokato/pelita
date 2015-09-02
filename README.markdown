@@ -2,7 +2,7 @@
 
 ## Notes on writing
 
-* Please use Python 2.7
+* Please use Python 3
 * Numpy is pre-installed on the tournament machine; everything else must be negotiated
 * Please use relative imports inside your module
 * You may need to set the PYTHONPATH to point to the main pelita directory

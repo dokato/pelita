@@ -25,7 +25,7 @@ class DrunkPlayer(AbstractPlayer):
 
         # Just printing the universe to give you an idea, please remove all
         # print statements in the final player.
-        print self.current_uni.pretty
+        print(self.current_uni.pretty)
 
     def check_pause(self):
         # make a pause every fourth step because whatever :)
