@@ -35,7 +35,8 @@ class DrunkPlayer(AbstractPlayer):
 
         if self.sleep_rounds > 0:
             self.sleep_rounds -= 1
-            self.say("What a headache!")
+            texts = ["What a headache!", "#aspp2015", "Python School Munich"]
+            self.say(self.rnd.choice(texts))
             return stop
 
     def get_move(self):
