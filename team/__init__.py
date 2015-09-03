@@ -11,7 +11,7 @@ from .demo_player import DrunkPlayer
 # the first and second player.
 
 def factory():
-    return SimpleTeam("Drunk Team", DrunkPlayer(), DrunkPlayer())
+    return SimpleTeam("group3", DrunkPlayer(), DrunkPlayer())
 
 # For testing purposes, one may use alternate factory methods::
 #
