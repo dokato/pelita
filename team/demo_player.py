@@ -7,6 +7,7 @@ from pelita.datamodel import stop
 
 # use relative imports for things inside your module
 from .utils import utility_function
+from .utils import our_test_function
 
 class DrunkPlayer(AbstractPlayer):
     """ Basically a clone of the RandomPlayer. """
@@ -35,7 +36,7 @@ class DrunkPlayer(AbstractPlayer):
 
         if self.sleep_rounds > 0:
             self.sleep_rounds -= 1
-            texts = ["What a headache!", "#aspp2015", "Python School Munich"]
+            texts = ["aaaaaaaaaaaaaaaaa", "#aspp2015", "Python School Munich"]
             self.say(self.rnd.choice(texts))
             return stop
 

@@ -10,6 +10,15 @@ class OurPlayer(AbstractPlayer):
 
     def get_move(self):
 
+
+        dangerous_enemy_pos = [bot.current_pos
+            for bot in self.enemy_bots if bot.is_destroyer]
+        print(dangerous_enemy_pos)
+        killable_enemy_pos = [bot.current_pos
+            for bot in self.enemy_bots if bot.is_harvester]
+        print(killable_enemy_pos)
+        print("\n")
+
         self.check_pause()
         possible_moves = list(self.legal_moves.keys())
         return self.rnd.choice(possible_moves)
