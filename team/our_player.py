@@ -20,7 +20,8 @@ class BorderPlayer(AbstractPlayer):
             return stop
         return diff_pos(self.current_pos, border_path.pop())
 
-class OurPlayer(AbstractPlayer):
+
+class ScaredPlayer(AbstractPlayer):
 
     def __init__(self):
         # Do some basic initialisation here. You may also accept additional
@@ -43,14 +44,48 @@ class OurPlayer(AbstractPlayer):
     
     def get_move(self):
 
-
         dangerous_enemy_pos = [bot.current_pos
             for bot in self.enemy_bots if bot.is_destroyer]
-        print(dangerous_enemy_pos)
         killable_enemy_pos = [bot.current_pos
             for bot in self.enemy_bots if bot.is_harvester]
-        print(killable_enemy_pos)
-        print("\n")
+    
+        for move, new_pos in list(self.legal_moves.items()):
+            if (move == stop or
+                new_pos in dangerous_enemy_pos):
+                continue # bad idea
+            elif (new_pos in killable_enemy_pos or
+                  new_pos in self.enemy_food):
+                return move # get it!
+            else:
+                smart_moves.append(move)
+
+        self.check_pause()
+        next_move = self.find_path(dangerous_enemy_pos)
+        return next_move
+
+
+class OurPlayer(AbstractPlayer):
+
+    def __init__(self):
+        # Do some basic initialisation here. You may also accept additional
+        # parameters which you can specify in your factory.
+        # Note that any other game variables have not been set yet. So there is
+        # no ``self.current_uni`` or ``self.current_state``
+        self.sleep_rounds = 0
+    
+    def check_pause(self):
+        # make a pause every fourth step because whatever :)
+        if self.sleep_rounds <= 0:
+            if self.rnd.random() > 0.75:
+                self.sleep_rounds = 3
+
+        if self.sleep_rounds > 0:
+            self.sleep_rounds -= 1
+            texts = ["Dominik!", "Kwangjun", "Python School Munich"]
+            self.say(self.rnd.choice(texts))
+            return stop
+    
+    def get_move(self):
 
         self.check_pause()
         possible_moves = list(self.legal_moves.keys())
