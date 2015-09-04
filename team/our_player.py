@@ -9,14 +9,24 @@ from pelita.graph import AdjacencyList, diff_pos
 class BorderPlayer(AbstractPlayer):
     """ A player that makes moves at random. """
 
-    def get_move(self):
-        #pdb.set_trace()
+    def find_path(self, thingslist):
+        """ finds the path to the nearest object
+        *thingslist* - list of tuples with objects positions
+        """
         self.adjacency = AdjacencyList(self.current_uni.free_positions())
         try:
-            border_path =  self.adjacency.bfs(self.current_pos, self.team_border)
+            pathd =  self.adjacency.bfs(self.current_pos, thingslist)
         except NoPathException:
-            return stop
+            return None
+        return pathd
+
+    def get_move(self):
+        #pdb.set_trace()
+        border_path =  self.find_path(self.team_border)
+        self.say("Border!!!!")
         if len(border_path)==0:
+            return stop
+        if border_path==None:
             return stop
         return diff_pos(self.current_pos, border_path.pop())
 
