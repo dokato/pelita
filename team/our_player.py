@@ -1,16 +1,13 @@
 # -*- coding: utf-8 -*-
 
 # (Specifying utf-8 is always a good idea in Python 2.)
-
 from pelita.player import AbstractPlayer
 from pelita.datamodel import stop
 from .utils import utility_function
+from pelita.graph import AdjacencyList, diff_pos
 
 class BorderPlayer(AbstractPlayer):
     """ A player that makes moves at random. """
-
-#    def __init__(self):
-#        self.adjacency = AdjacencyList(self.current_uni.free_positions())
 
     def get_move(self):
         #pdb.set_trace()
@@ -22,7 +19,6 @@ class BorderPlayer(AbstractPlayer):
         if len(border_path)==0:
             return stop
         return diff_pos(self.current_pos, border_path.pop())
-
 
 class OurPlayer(AbstractPlayer):
 
