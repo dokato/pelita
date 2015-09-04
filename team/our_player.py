@@ -8,6 +8,25 @@ from .utils import utility_function
 
 class OurPlayer(AbstractPlayer):
 
+    def __init__(self):
+        # Do some basic initialisation here. You may also accept additional
+        # parameters which you can specify in your factory.
+        # Note that any other game variables have not been set yet. So there is
+        # no ``self.current_uni`` or ``self.current_state``
+        self.sleep_rounds = 0
+    
+    def check_pause(self):
+        # make a pause every fourth step because whatever :)
+        if self.sleep_rounds <= 0:
+            if self.rnd.random() > 0.75:
+                self.sleep_rounds = 3
+
+        if self.sleep_rounds > 0:
+            self.sleep_rounds -= 1
+            texts = ["Dominik!", "Kwangjun", "Python School Munich"]
+            self.say(self.rnd.choice(texts))
+            return stop
+    
     def get_move(self):
 
         self.check_pause()
