@@ -6,6 +6,24 @@ from pelita.player import AbstractPlayer
 from pelita.datamodel import stop
 from .utils import utility_function
 
+class BorderPlayer(AbstractPlayer):
+    """ A player that makes moves at random. """
+
+#    def __init__(self):
+#        self.adjacency = AdjacencyList(self.current_uni.free_positions())
+
+    def get_move(self):
+        #pdb.set_trace()
+        self.adjacency = AdjacencyList(self.current_uni.free_positions())
+        try:
+            border_path =  self.adjacency.bfs(self.current_pos, self.team_border)
+        except NoPathException:
+            return stop
+        if len(border_path)==0:
+            return stop
+        return diff_pos(self.current_pos, border_path.pop())
+
+
 class OurPlayer(AbstractPlayer):
 
     def __init__(self):
