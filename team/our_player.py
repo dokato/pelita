@@ -4,7 +4,7 @@
 from pelita.player import AbstractPlayer
 from pelita.datamodel import stop
 from .utils import utility_function
-from pelita.graph import AdjacencyList, diff_pos
+from pelita.graph import AdjacencyList, diff_pos, NoPathException
 
 class BorderPlayer(AbstractPlayer):
     """ A player that makes moves at random. """
@@ -52,25 +52,35 @@ class ScaredPlayer(AbstractPlayer):
             self.say(self.rnd.choice(texts))
             return stop
     
+    def find_path(self, thingslist):
+        """ finds the path to the nearest object
+        *thingslist* - list of tuples with objects positions
+        """
+        self.adjacency = AdjacencyList(self.current_uni.free_positions())
+        try:
+            pathd =  self.adjacency.bfs(self.current_pos, thingslist)
+        except NoPathException:
+            return None
+        return pathd
+
     def get_move(self):
 
         dangerous_enemy_pos = [bot.current_pos
             for bot in self.enemy_bots if bot.is_destroyer]
         killable_enemy_pos = [bot.current_pos
             for bot in self.enemy_bots if bot.is_harvester]
-    
+
+        smart_moves = []
         for move, new_pos in list(self.legal_moves.items()):
             if (move == stop or
                 new_pos in dangerous_enemy_pos):
                 continue # bad idea
-            elif (new_pos in killable_enemy_pos or
-                  new_pos in self.enemy_food):
-                return move # get it!
             else:
                 smart_moves.append(move)
 
         self.check_pause()
         next_move = self.find_path(dangerous_enemy_pos)
+        #next_move = self.rnd.choice(smart_moves)
         return next_move
 
 
