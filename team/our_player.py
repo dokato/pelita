@@ -5,6 +5,7 @@ from pelita.player import AbstractPlayer
 from pelita.datamodel import stop
 from .utils import utility_function
 from pelita.graph import AdjacencyList, diff_pos
+import numpy as np
 
 class BorderPlayer(AbstractPlayer):
     """ A player that makes moves at random. """
