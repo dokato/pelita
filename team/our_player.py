@@ -79,11 +79,35 @@ class OurPlayer(AbstractPlayer):
     def go_for_food(self):
         food_path =  self.find_path(self.enemy_food)
         self.say("Omnomnom!!!!")
+        print('went for food')
         if food_path==None:
             return stop
         if len(food_path)==0:
             return stop
         return diff_pos(self.current_pos, food_path.pop())
+
+    def safe_move(self, next_move):
+        dangerous_enemies = [bot for bot in self.enemy_bots if bot.is_destroyer]
+        print ('got dangerous enemies')
+        valid_moves = self.legal_moves.values()
+        enemy_valid_moves_values = [bot.legal_moves.values() for bot in dangerous_enemies]
+        enemy_valid_moves_values = [item for sublist in enemy_valid_moves_values for item in    sublist]
+        if [sum(x) for x in zip(next_move,self.current_pos)] in enemy_valid_moves_values:
+            valid_moves = [i for i in valid_moves if i not in enemy_valid_moves_values]
+            return self.rnd.choice(valid_moves)
+        else:
+            return(next_move) 
+        #check that next_move isn't in enemy_valid_moves.values() (don't forget to either flatten or sth)
+        for de in dangerous_enemies:
+            print(self.current_pos, dd)
+            #list comp to filter valid_moves based on the valid moves of the enemy
+            #pick a random move from valid_moves
+            if (manhattan_dist(self.current_pos, dd) <= 2):
+                valid_moves = [i for i in valid_moves if i != next_move and i != (0,0)]
+                print ('too close')
+                return self.rnd.choice(valid_moves)
+            else:
+                return next_move
 
     def get_move(self):
         if self.round_index is None:
@@ -93,19 +117,15 @@ class OurPlayer(AbstractPlayer):
         self.read_score()
         #possible_moves = list(self.legal_moves.keys())
         if self.me.is_destroyer:
-            m1 = self.go_for_boarder()
-            if m1 != stop:
-                return m1
-            else:
-                return self.go_for_food()
+            #m1 = self.go_for_boarder()
+            #if m1 != stop:
+            #    return m1
+            #else:
+            return self.go_for_food()
         else:
-            dangerous_enemy_pos = [bot.current_pos
-                for bot in self.enemy_bots if bot.is_destroyer]
             next_move = self.go_for_food()
-            print(dangerous_enemy_pos)
-            for dd in dangerous_enemy_pos:
-                if (manhattan_dist(self.current_pos, dd) <= 2):
-                    return tuple((-1)*x for x in next_move)
+            return self.safe_move(next_move, dangerous_enemy_pos)
+            
             
             return next_move
 

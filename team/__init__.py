@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from pelita.player import SimpleTeam
-from .our_player import ScaredPlayer, BorderPlayer, OurPlayer
+from .our_player import BorderPlayer, OurPlayer
 
 # (please use relative imports inside your module)
 
