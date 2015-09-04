@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from pelita.player import SimpleTeam
-from .our_player import OurPlayer, BorderPlayer
+from .our_player import ScaredPlayer, BorderPlayer, OurPlayer
 
 # (please use relative imports inside your module)
 
@@ -12,4 +12,14 @@ from .our_player import OurPlayer, BorderPlayer
 # the first and second player.
 
 def factory():
-    return SimpleTeam("group3", BorderPlayer(), OurPlayer())
+    return SimpleTeam("group3", OurPlayer(), OurPlayer())
+
+# For testing purposes, one may use alternate factory methods::
+#
+#     def alternate_factory():
+#          return SimpleTeam("Our alternate Team", AlternatePlayer(), AlternatePlayer())
+#
+# To be used as follows::
+#
+#     $ ./pelitagame path_to/groupN/:alternate_factory
+

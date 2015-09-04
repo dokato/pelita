@@ -4,8 +4,10 @@ import pdb
 from pelita.player import AbstractPlayer
 from pelita.datamodel import stop
 from .utils import utility_function
-from pelita.graph import AdjacencyList, diff_pos
+
+from pelita.graph import AdjacencyList, diff_pos, NoPathException, manhattan_dist
 import numpy as np
+
 
 class BorderPlayer(AbstractPlayer):
     """ A player that makes moves at random. """
@@ -33,6 +35,7 @@ class BorderPlayer(AbstractPlayer):
         if border_path==None:
             return stop
         return diff_pos(self.current_pos, border_path.pop())
+
 
 class OurPlayer(AbstractPlayer):
 
@@ -76,9 +79,9 @@ class OurPlayer(AbstractPlayer):
     def go_for_food(self):
         food_path =  self.find_path(self.enemy_food)
         self.say("Omnomnom!!!!")
-        if len(food_path)==0:
-            return stop
         if food_path==None:
+            return stop
+        if len(food_path)==0:
             return stop
         return diff_pos(self.current_pos, food_path.pop())
 
@@ -96,5 +99,13 @@ class OurPlayer(AbstractPlayer):
             else:
                 return self.go_for_food()
         else:
-            return self.go_for_food()
+            dangerous_enemy_pos = [bot.current_pos
+                for bot in self.enemy_bots if bot.is_destroyer]
+            next_move = self.go_for_food()
+            print(dangerous_enemy_pos)
+            for dd in dangerous_enemy_pos:
+                if (manhattan_dist(self.current_pos, dd) <= 2):
+                    return tuple((-1)*x for x in next_move)
+            
+            return next_move
 
