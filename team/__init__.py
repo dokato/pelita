@@ -12,7 +12,7 @@ from .our_player import ScaredPlayer, BorderPlayer, OurPlayer
 # the first and second player.
 
 def factory():
-    return SimpleTeam("group3", ScaredPlayer(), BorderPlayer())
+    return SimpleTeam("group3", OurPlayer(), OurPlayer())
 
 # For testing purposes, one may use alternate factory methods::
 #
