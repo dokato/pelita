@@ -35,7 +35,7 @@ class DrunkPlayer(AbstractPlayer):
 
         if self.sleep_rounds > 0:
             self.sleep_rounds -= 1
-            texts = ["What a headache!", "#aspp2015", "Python School Munich"]
+            texts = ["Dominik!", "Kwangjun", "Python School Munich"]
             self.say(self.rnd.choice(texts))
             return stop
 
@@ -46,6 +46,8 @@ class DrunkPlayer(AbstractPlayer):
 
         # legal_moves returns a dict {move: position}
         # we always need to return a move
+        import pdb
+        pdb.set_trace()
         possible_moves = list(self.legal_moves.keys())
         # selecting one of the moves
         return self.rnd.choice(possible_moves)
