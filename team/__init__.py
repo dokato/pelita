@@ -3,6 +3,7 @@
 
 from pelita.player import SimpleTeam
 from .our_player import OurPlayer, BorderPlayer
+from .trys import DominikPlayer
 
 # (please use relative imports inside your module)
 
@@ -12,4 +13,4 @@ from .our_player import OurPlayer, BorderPlayer
 # the first and second player.
 
 def factory():
-    return SimpleTeam("group3", BorderPlayer(), OurPlayer())
+    return SimpleTeam("group3", DominikPlayer(), OurPlayer())

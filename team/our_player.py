@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-
 # (Specifying utf-8 is always a good idea in Python 2.)
+import pdb
 from pelita.player import AbstractPlayer
 from pelita.datamodel import stop
 from .utils import utility_function
@@ -20,8 +20,11 @@ class BorderPlayer(AbstractPlayer):
             return None
         return pathd
 
+    def read_score(self):
+        self.score_history[0, self.round_index] = self.current_uni.teams[0].score
+        self.score_history[1, self.round_index] = self.current_uni.teams[1].score
+
     def get_move(self):
-        #pdb.set_trace()
         border_path =  self.find_path(self.team_border)
         self.say("Border!!!!")
         if len(border_path)==0:
