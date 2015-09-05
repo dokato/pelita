@@ -149,7 +149,7 @@ class OurPlayer(AbstractPlayer):
                 return(next_move)
             #if there are no valid positions, pick a random legal move
             else:
-                return(self.rnd.choice(self.legal_moves.keys()))
+                return(self.rnd.choice(list(self.legal_moves.keys())))
         else:
             return(next_move) 
         
