@@ -9,6 +9,8 @@ from pelita.graph import AdjacencyList, diff_pos, NoPathException, manhattan_dis
 import numpy as np
 
 
+
+
 class BorderPlayer(AbstractPlayer):
     """ A player that makes moves at random. """
 
@@ -47,6 +49,7 @@ class OurPlayer(AbstractPlayer):
         self.path = []
         self.chase_mode = False
         self.border_mode = True
+        self.FOOD_MIN = 10
 
     def find_path(self, thingslist):
         """ finds the path to the nearest object
@@ -178,7 +181,8 @@ class OurPlayer(AbstractPlayer):
             if possible_targets:
                 # get the path to the closest one
                 try:
-                    possible_paths = [(enemy, self.adjacency.a_star(self.current_pos, enemy.current_pos))
+                    possible_paths = [(enemy, 
+                        self.adjacency.a_star(self.current_pos, enemy.current_pos))
                                       for enemy in possible_targets]
                 except NoPathException:
                     return None
@@ -190,7 +194,7 @@ class OurPlayer(AbstractPlayer):
                 self.tracking_idx = closest_enemy.index
         if len(attackpath)==0:
             return self.random_move()
-        if len(attackpath)>0 and self.round_index%10==0:
+        if len(attackpath)>0 and self.round_index%20==0:
             return self.random_move()
         return diff_pos(self.current_pos, attackpath.pop())
 
@@ -221,7 +225,7 @@ class OurPlayer(AbstractPlayer):
             else:
                 next_move = self.go_for_food()
             am = self.attack_move()
-            if am:
+            if am and not self.border_mode and len(self.enemy_food) < self.FOOD_MIN:
                 next_move = am
         else:
             next_move = self.go_for_food()
