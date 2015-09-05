@@ -199,29 +199,30 @@ class OurPlayer(AbstractPlayer):
             self.round_index += 1
         self.read_score()
         if self.round_index < 14 and self.me.index == 0:
-            return self.random_move()
+            next_move = self.random_move()
 
         if self.me.is_destroyer:
             am = self.attack_move()
             if am:
-                return am
+                next_move = am
         if self.me.is_destroyer:
             #m1 = self.go_for_boarder()
             #if m1 != stop:
             #    return m1
             #else:
-            return self.go_for_food()
+            next_move = self.go_for_food()
             if self.food_strategy:
                 if self.border_mode:
                     m1 = self.go_for_boarder()
                     if m1 != stop:
-                        return m1
+                        next_move = m1
                     else:
-                        return self.go_for_food()
+                        next_move = self.go_for_food()
                 else:
                     self.border_mode = False
-                    return self.go_for_food()
+                    next_move = self.go_for_food()
         else:
             next_move = self.go_for_food()
-            return self.safe_move(next_move)
+        
+        return self.safe_move(next_move)
 
