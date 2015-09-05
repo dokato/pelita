@@ -45,7 +45,6 @@ class OurPlayer(AbstractPlayer):
         self.score_history = np.zeros([2, 300])
         self.tracking_idx = None
         self.path = []
-        self.food_strategy = True
         self.chase_mode = False
         self.border_mode = True
 
