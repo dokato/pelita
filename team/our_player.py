@@ -55,7 +55,7 @@ class OurPlayer(AbstractPlayer):
         self.chase_mode = False
         self.border_mode = True
         self.chase_count = 0
-        self.FOOD_MIN = len(self.enemy_food)/1
+        self.FOOD_MIN = len(self.enemy_food)/3
 
     def find_path(self, thingslist):
         """ finds the path to the nearest object
