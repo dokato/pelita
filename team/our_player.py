@@ -42,6 +42,9 @@ class BorderPlayer(AbstractPlayer):
 
 class OurPlayer(AbstractPlayer):
 
+    def __init__(self, name):
+        self.name = name
+
     def set_initial(self):
         self.current_strategy = 0
         self.round_index = None
