@@ -270,7 +270,7 @@ class OurPlayer(AbstractPlayer):
             am = self.attack_move()
             if am and not self.border_mode and len(self.enemy_food) < self.FOOD_MIN:
                 next_move = am
-                self.say("".join(["'m going for them, ", self.partner.name, '!!']))
+                self.say("".join(["I'm going for them, ", self.partner.name, '!!']))
         else:
             next_move = self.go_for_food()
         final_move = self.safe_move(next_move)
