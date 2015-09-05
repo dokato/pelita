@@ -1,12 +1,15 @@
 # -*- coding: utf-8 -*-
 # (Specifying utf-8 is always a good idea in Python 2.)
 import pdb
+from collections import deque
 from pelita.player import AbstractPlayer
 from pelita.datamodel import stop
 from .utils import utility_function
 
 from pelita.graph import AdjacencyList, diff_pos, NoPathException, manhattan_dist
 import numpy as np
+
+
 
 
 class BorderPlayer(AbstractPlayer):
@@ -45,10 +48,11 @@ class OurPlayer(AbstractPlayer):
         self.score_history = np.zeros([2, 300])
         self.tracking_idx = None
         self.path = []
-        self.food_strategy = True
+        self.memory = deque([], maxlen = 5)
         self.chase_mode = False
         self.border_mode = True
         self.chase_count = 0
+        self.FOOD_MIN = len(self.enemy_food)/3
 
     def find_path(self, thingslist):
         """ finds the path to the nearest object
@@ -95,9 +99,15 @@ class OurPlayer(AbstractPlayer):
         if self.partner:
             self.partner.chase_mode = False
     
-    def go_for_boarder(self):
-        border_path =  self.find_path(self.team_border)
-        #self.say("Border!!!!")
+    def go_for_border(self):
+        if (self.me.index==0 or self.me.index==1) and self.border_mode:
+            bor_u = [x for x in self.team_border if x[1]>x[0]//2 ]
+            border_path =  self.find_path(bor_u)
+        elif (self.me.index==2 or self.me.index==3) and self.border_mode:
+            bor_d = [x for x in self.team_border if x[1]<=x[0]//2]
+            border_path =  self.find_path(bor_d)
+        else:
+            border_path =  self.find_path(self.team_border)
         if len(border_path)==0:
             return stop
         if border_path==None:
@@ -108,7 +118,6 @@ class OurPlayer(AbstractPlayer):
         food_path =  self.find_path(self.enemy_food)
 
         #self.say("Omnomnom!!!!")
-
         if food_path==None:
             return stop
         if len(food_path)==0:
@@ -116,21 +125,31 @@ class OurPlayer(AbstractPlayer):
         return diff_pos(self.current_pos, food_path.pop())
 
 
-    def safe_move(self, next_move):
-        
+    def safe_move(self, next_move, dontwanna=None):
+        #get all the enemy bots that are destroyers
         dangerous_enemies = [enemy for enemy in self.enemy_bots if enemy.is_destroyer]
+        #get all the positions where you can move to
         valid_pos = self.legal_moves.values()
+        #get all the positions where dangerous enemies can move to (a list of two sublists)
         enemy_valid_pos_values = [self.current_uni.legal_moves(enemy.current_pos).values() for enemy in dangerous_enemies]
+        #flatten list
         enemy_valid_pos_values = [item for sublist in enemy_valid_pos_values for item in    sublist]
+        #convert your planned next move to a position
         next_pos = tuple([sum(x) for x in zip(next_move,self.current_pos)])
+        #if your next position intersects with the enemy position
         if next_pos in enemy_valid_pos_values:
-            valid_pos = [i for i in valid_pos if i not in enemy_valid_pos_values]
+            #get all positions you could move to that are not enemy legal moves and are not the current position
+            valid_pos = [i for i in valid_pos if i not in enemy_valid_pos_values and i != self.current_pos]
+            if dontwanna:
+                valid_pos = [i for i in valid_pos if i not in dontwanna]
+            #pick any such safe position
             if len(valid_pos) > 0:
                 next_pos = self.rnd.choice(valid_pos)
                 next_move = tuple([x[0] - x[1] for x in zip(next_pos,self.current_pos)])
                 return(next_move)
+            #if there are no valid positions, pick a random legal move
             else:
-                return(stop)
+                return(self.rnd.choice(self.legal_moves.keys()))
         else:
             return(next_move) 
         
@@ -175,7 +194,8 @@ class OurPlayer(AbstractPlayer):
             if possible_targets:
                 # get the path to the closest one
                 try:
-                    possible_paths = [(enemy, self.adjacency.a_star(self.current_pos, enemy.current_pos))
+                    possible_paths = [(enemy, 
+                        self.adjacency.a_star(self.current_pos, enemy.current_pos))
                                       for enemy in possible_targets]
                 except NoPathException:
                     return None
@@ -186,6 +206,8 @@ class OurPlayer(AbstractPlayer):
                                           key=lambda enemy_path: len(enemy_path[1]))
                 self.tracking_idx = closest_enemy.index
         if len(attackpath)==0:
+            return self.random_move()
+        if len(attackpath)>0 and self.round_index%20==0:
             return self.random_move()
         return diff_pos(self.current_pos, attackpath.pop())
     
@@ -214,8 +236,6 @@ class OurPlayer(AbstractPlayer):
         else:
             self.round_index += 1
         self.read_score()
-        if self.round_index < 14 and self.me.index == 0:
-            next_move = self.random_move()
 
 
         #switch both players to chase mode, if both are close but on two sides
@@ -236,23 +256,26 @@ class OurPlayer(AbstractPlayer):
                 return self.safe_move(self.attack_move())
             
         if self.me.is_destroyer:
-            #am = self.attack_move()
-            #if am:
-            #    next_move = am
-            if self.food_strategy:
-                if self.border_mode:
-                    m1 = self.go_for_boarder()
-                    if m1 != stop:
-                        self.say("Boarder")
-                        next_move = m1
-                    else:
-                        self.say("Food")
-                        next_move = self.go_for_food()
+            
+            if self.border_mode:
+                m1 = self.go_for_border()
+                if m1 != stop:
+                    next_move = m1
                 else:
-                    self.say("Food")
-                    self.border_mode = False
                     next_move = self.go_for_food()
+                    self.border_mode = False
+            else:
+                next_move = self.go_for_food()
+            am = self.attack_move()
+            if am and not self.border_mode and len(self.enemy_food) < self.FOOD_MIN:
+                next_move = am
         else:
             next_move = self.go_for_food()
-        
+        final_move = self.safe_move(next_move)
+        final_pos = tuple([sum(i) for i in zip(final_move,self.current_pos)])
+        self.memory.append(final_pos)
+        st = list(set(self.memory))
+        if len(self.memory)>4 and len(st) <= 2:
+            final_move = self.safe_move(next_move, st) 
+        self.memory[-1] = final_move
         return self.safe_move(next_move)
