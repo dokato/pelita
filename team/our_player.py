@@ -144,17 +144,18 @@ class OurPlayer(AbstractPlayer):
         if border_path==None:
             return stop
         return diff_pos(self.current_pos, border_path.pop())
-    
+
     def go_for_food(self):
         food_path =  self.find_path(self.enemy_food)
-
-        #self.say("Omnomnom!!!!")
+        mandist = manhattan_dist(self.me.current_pos, self.partner.me.current_pos)
+        if mandist <=3 and self.round_index<100:
+            distlst = [x for x in self.enemy_food if manhattan_dist(x, self.partner.me.current_pos)>5]
+            food_path =  self.find_path(distlst)
         if food_path==None:
-            return stop
+            return self.random_move()
         if len(food_path)==0:
-            return stop
+            return self.random_move()
         return diff_pos(self.current_pos, food_path.pop())
-
 
     def safe_move(self, next_move, dontwanna=None):
         #get all the enemy bots that are destroyers
@@ -180,6 +181,10 @@ class OurPlayer(AbstractPlayer):
                 return(next_move)
             #if there are no valid positions, pick a random legal move
             else:
+                try:    
+                    self.say("".join(["I love you, ",  + str(self.partner.name)]))
+                except:
+                    pass
                 return(self.rnd.choice(list(self.legal_moves.keys())))
         else:
             return(next_move) 
@@ -302,6 +307,7 @@ class OurPlayer(AbstractPlayer):
             am = self.attack_move()
             if am and not self.border_mode and len(self.enemy_food) < self.FOOD_MIN:
                 next_move = am
+                self.say("".join(["'m going for them, ", self.partner.name, '!!']))
         else:
             next_move = self.go_for_food()
         final_move = self.safe_move(next_move)
@@ -310,5 +316,5 @@ class OurPlayer(AbstractPlayer):
         st = list(set(self.memory))
         if len(self.memory)>4 and len(st) <= 2:
             final_move = self.safe_move(next_move, st) 
-        self.memory[-1] = final_move
+            self.memory[-1] = final_move
         return self.safe_move(next_move)
