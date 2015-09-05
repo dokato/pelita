@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 # (Specifying utf-8 is always a good idea in Python 2.)
 import pdb
+from collections import deque
 from pelita.player import AbstractPlayer
 from pelita.datamodel import stop
 from .utils import utility_function
@@ -47,6 +48,7 @@ class OurPlayer(AbstractPlayer):
         self.score_history = np.zeros([2, 300])
         self.tracking_idx = None
         self.path = []
+        self.memory = deque([], maxlen = 5)
         self.chase_mode = False
         self.border_mode = True
         self.FOOD_MIN = len(self.enemy_food)/3
@@ -120,7 +122,7 @@ class OurPlayer(AbstractPlayer):
         return diff_pos(self.current_pos, food_path.pop())
 
 
-    def safe_move(self, next_move):
+    def safe_move(self, next_move, dontwanna=None):
         #get all the enemy bots that are destroyers
         dangerous_enemies = [enemy for enemy in self.enemy_bots if enemy.is_destroyer]
         #get all the positions where you can move to
@@ -135,14 +137,16 @@ class OurPlayer(AbstractPlayer):
         if next_pos in enemy_valid_pos_values:
             #get all positions you could move to that are not enemy legal moves and are not the current position
             valid_pos = [i for i in valid_pos if i not in enemy_valid_pos_values and i != self.current_pos]
+            if dontwanna:
+                valid_pos = [i for i in valid_pos if i not in dontwanna]
             #pick any such safe position
             if len(valid_pos) > 0:
                 next_pos = self.rnd.choice(valid_pos)
                 next_move = tuple([x[0] - x[1] for x in zip(next_pos,self.current_pos)])
                 return(next_move)
-            #if there are no valid positions, stop
+            #if there are no valid positions, pick a random legal move
             else:
-                return(stop)
+                return(self.rnd.choice(self.legal_moves.keys()))
         else:
             return(next_move) 
         
@@ -233,6 +237,12 @@ class OurPlayer(AbstractPlayer):
                 next_move = am
         else:
             next_move = self.go_for_food()
-        
+        final_move = self.safe_move(next_move)
+        final_pos = tuple([sum(i) for i in zip(final_move,self.current_pos)])
+        self.memory.append(final_pos)
+        st = list(set(self.memory))
+        if len(self.memory)>4 and len(st) <= 2:
+            final_move = self.safe_move(next_move, st) 
+        self.memory[-1] = final_move
         return self.safe_move(next_move)
 
