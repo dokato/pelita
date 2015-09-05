@@ -121,7 +121,7 @@ class OurPlayer(AbstractPlayer):
         enemy_valid_pos_values = [item for sublist in enemy_valid_pos_values for item in    sublist]
         next_pos = tuple([sum(x) for x in zip(next_move,self.current_pos)])
         if next_pos in enemy_valid_pos_values:
-            valid_pos = [i for i in valid_pos if i not in enemy_valid_pos_values]
+            valid_pos = [i for i in valid_pos if i not in enemy_valid_pos_values and i != self.current_pos]
             if len(valid_pos) > 0:
                 next_pos = self.rnd.choice(valid_pos)
                 next_move = tuple([x[0] - x[1] for x in zip(next_pos,self.current_pos)])
