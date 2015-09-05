@@ -46,6 +46,8 @@ class OurPlayer(AbstractPlayer):
         self.tracking_idx = None
         self.path = []
         self.food_strategy = True
+        self.chase_mode = False
+        self.border_mode = True
 
     def find_path(self, thingslist):
         """ finds the path to the nearest object
@@ -77,9 +79,22 @@ class OurPlayer(AbstractPlayer):
         except NoPathException:
             return None
 
-    def go_for_border(self):
+
+    def start_chase(self):
+        self.say("Chase him!")
+        self.chase_mode = True
+        if self.partner:
+            self.partner.chase_mode = True
+    
+    def stop_chase(self):
+        self.say("Stopit!")
+        self.chase_mode = False
+        if self.partner:
+            self.partner.chase_mode = False
+    
+    def go_for_boarder(self):
         border_path =  self.find_path(self.team_border)
-        self.say("Border!!!!")
+        #self.say("Border!!!!")
         if len(border_path)==0:
             return stop
         if border_path==None:
@@ -88,13 +103,15 @@ class OurPlayer(AbstractPlayer):
     
     def go_for_food(self):
         food_path =  self.find_path(self.enemy_food)
-        self.say("Omnomnom!!!!")
-        print('went for food')
+
+        #self.say("Omnomnom!!!!")
+
         if food_path==None:
             return stop
         if len(food_path)==0:
             return stop
         return diff_pos(self.current_pos, food_path.pop())
+
 
     def safe_move(self, next_move):
         
@@ -107,7 +124,6 @@ class OurPlayer(AbstractPlayer):
             valid_pos = [i for i in valid_pos if i not in enemy_valid_pos_values]
             if len(valid_pos) > 0:
                 next_pos = self.rnd.choice(valid_pos)
-            
                 next_move = tuple([x[0] - x[1] for x in zip(next_pos,self.current_pos)])
                 return(next_move)
             else:
@@ -118,6 +134,7 @@ class OurPlayer(AbstractPlayer):
 
     def random_move(self):
         self.say("Let the fight begin!")
+
         legal_moves = self.legal_moves
         # Remove stop
         try:
@@ -160,8 +177,7 @@ class OurPlayer(AbstractPlayer):
                 except NoPathException:
                     return None
             else:
-                return self.go_for_food()
-
+                return None
             if possible_paths:
                 closest_enemy, path = min(possible_paths,
                                           key=lambda enemy_path: len(enemy_path[1]))
@@ -171,6 +187,12 @@ class OurPlayer(AbstractPlayer):
         return diff_pos(self.current_pos, attackpath.pop())
 
     def get_move(self):
+        if self.round_index == 2 and self.me.index == 0:        #find some more clever conditions
+            self.start_chase()
+        if self.round_index == 5 and self.me.index == 2:        #find some more clever conditions
+            self.stop_chase()
+        if self.chase_mode:
+            self.say("Chase!!")
         if self.round_index is None:
             self.round_index = 0
         else:
@@ -178,8 +200,11 @@ class OurPlayer(AbstractPlayer):
         self.read_score()
         if self.round_index < 14 and self.me.index == 0:
             return self.random_move()
+
         if self.me.is_destroyer:
-            return self.attack_move()
+            am = self.attack_move()
+            if am:
+                return am
         if self.me.is_destroyer:
             #m1 = self.go_for_boarder()
             #if m1 != stop:
@@ -187,11 +212,16 @@ class OurPlayer(AbstractPlayer):
             #else:
             return self.go_for_food()
             if self.food_strategy:
-                m1 = self.go_for_boarder()
-                if m1 != stop:
-                    return m1
+                if self.border_mode:
+                    m1 = self.go_for_boarder()
+                    if m1 != stop:
+                        return m1
+                    else:
+                        return self.go_for_food()
                 else:
+                    self.border_mode = False
                     return self.go_for_food()
         else:
             next_move = self.go_for_food()
             return self.safe_move(next_move)
+
