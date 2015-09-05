@@ -41,9 +41,30 @@ class BorderPlayer(AbstractPlayer):
 
 
 class OurPlayer(AbstractPlayer):
-
+    b = "Bonnie"
+    c = "Clyde"
+    message_list = [\
+        (c, "This here's Miss Bonnie Parker. I'm Clyde Barrow. We rob banks."), \
+        (b, "Whooee! A man with a record!"), \
+        (c, "Hell, you might just be the best damn girl in Texas."), \
+        (b, "Go for it Clyde"), \
+        (b, "You're good!"), \
+        (c, "I ain't good. I'm the best!"), \
+        (b, "And modest."), \
+        (b, "Hey, that ain't ours!"), \
+        (c, "Sure it is."), \
+        (b, "But we come in this one."), \
+        (c, "That don't mean we have to go home in it!"), \
+        (c, "Next time, I'll aim a little lower!"), \
+        (b, "Tell them I don't smoke cigars."), \
+        (c, "'Least I ain't a liar."), \
+        (c, "We got a dollar ninety-eight, and you're laughing!"), \
+        ]
+    talkcounter = 0
+    
     def __init__(self, name):
         self.name = name
+        self.mess = ""
 
     def set_initial(self):
         self.current_strategy = 0
@@ -88,12 +109,12 @@ class OurPlayer(AbstractPlayer):
             return None
 
     def talk(self):
-        mess = message_list[0]
+        mess = OurPlayer.message_list[0]
         if mess[0] == self.name:
-            message_list = message_list[1:]
-            message_list.append(mess)
+            OurPlayer.message_list = OurPlayer.message_list[1:]
+            OurPlayer.message_list.append(mess)
             string = mess[0] + ": " + mess[1]
-            self.say(string)
+            self.mess = string
 
     def start_chase(self):
         #self.say("Chase him!")
@@ -234,7 +255,13 @@ class OurPlayer(AbstractPlayer):
         
 
     def get_move(self):
-        
+        if OurPlayer.talkcounter % 13 == 0:
+            self.talk()
+        if OurPlayer.talkcounter % 13 == 10:
+            self.mess = ""
+            self.partner.mess = ""
+        OurPlayer.talkcounter += 1
+        self.say(self.mess)
 
         if self.round_index is None:
             self.round_index = 0
@@ -245,6 +272,7 @@ class OurPlayer(AbstractPlayer):
 
         #switch both players to chase mode, if both are close but on two sides
         en = self.get_closest_eatable_enemy_pos()
+        en = False
         if en:
             other_bot = [x for x in self.team_bots if x != self.me][0]
             dist_enemy_to_other_bot = manhattan_dist(other_bot.current_pos, en[0])
@@ -257,7 +285,7 @@ class OurPlayer(AbstractPlayer):
                 self.stop_chase()
 
             if self.chase_mode:
-                self.say("Chasemode")
+                #self.say("Chasemode")
                 return self.safe_move(self.attack_move())
             
         if self.me.is_destroyer:

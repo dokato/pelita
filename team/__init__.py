@@ -14,7 +14,7 @@ from .our_player import BorderPlayer, OurPlayer
 def factory():
     player1 = OurPlayer('Bonnie')
     player2 = OurPlayer('Clyde')
-    team = SimpleTeam("Bonnie&Clyde", player1, player2)
+    team = SimpleTeam("Bonnie and Clyde", player1, player2)
     player1.partner = player2
     player2.partner = player1
     return team
