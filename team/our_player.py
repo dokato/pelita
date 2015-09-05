@@ -55,7 +55,7 @@ class OurPlayer(AbstractPlayer):
         self.chase_mode = False
         self.border_mode = True
         self.chase_count = 0
-        self.FOOD_MIN = len(self.enemy_food)/3
+        self.FOOD_MIN = len(self.enemy_food)/1
 
     def find_path(self, thingslist):
         """ finds the path to the nearest object
@@ -227,7 +227,7 @@ class OurPlayer(AbstractPlayer):
         
 
     def get_move(self):
-        self.say("Bot" + str(self.me.index))
+        #self.say("I love you, ",  + str(self.me.index))
 #        if self.round_index == 2 and self.me.index == 0:        #find some more clever conditions
 #            self.start_chase()
 #        if self.round_index == 5 and self.me.index == 2:        #find some more clever conditions
@@ -255,7 +255,6 @@ class OurPlayer(AbstractPlayer):
                 self.stop_chase()
 
             if self.chase_mode:
-                self.say("Chasemode")
                 return self.safe_move(self.attack_move())
             
         if self.me.is_destroyer:
@@ -272,6 +271,7 @@ class OurPlayer(AbstractPlayer):
             am = self.attack_move()
             if am and not self.border_mode and len(self.enemy_food) < self.FOOD_MIN:
                 next_move = am
+                self.say("".join(["I'm going for them, ", self.partner.name, '!!']))
         else:
             next_move = self.go_for_food()
         final_move = self.safe_move(next_move)
