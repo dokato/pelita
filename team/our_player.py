@@ -208,26 +208,20 @@ class OurPlayer(AbstractPlayer):
         if self.round_index < 14 and self.me.index == 0:
             next_move = self.random_move()
 
-        if self.me.is_destroyer:
+        elif self.me.is_destroyer:
+
+            if self.border_mode:
+                m1 = self.go_for_border()
+                if m1 != stop:
+                    next_move = m1
+                else:
+                    next_move = self.go_for_food()
+                    self.border_mode = False
+            else:
+                next_move = self.go_for_food()
             am = self.attack_move()
             if am:
                 next_move = am
-        if self.me.is_destroyer:
-            #m1 = self.go_for_border()
-            #if m1 != stop:
-            #    return m1
-            #else:
-            next_move = self.go_for_food()
-            if self.food_strategy:
-                if self.border_mode:
-                    m1 = self.go_for_border()
-                    if m1 != stop:
-                        next_move = m1
-                    else:
-                        next_move = self.go_for_food()
-                else:
-                    self.border_mode = False
-                    next_move = self.go_for_food()
         else:
             next_move = self.go_for_food()
         
