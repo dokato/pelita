@@ -93,8 +93,14 @@ class OurPlayer(AbstractPlayer):
             self.partner.chase_mode = False
     
     def go_for_border(self):
-        border_path =  self.find_path(self.team_border)
-        #self.say("Border!!!!")
+        if (self.me.index==0 or self.me.index==1) and self.border_mode:
+            bor_u = [x for x in self.team_border if x[1]>x[0]//2 ]
+            border_path =  self.find_path(bor_u)
+        elif (self.me.index==2 or self.me.index==3) and self.border_mode:
+            bor_d = [x for x in self.team_border if x[1]<=x[0]//2]
+            border_path =  self.find_path(bor_d)
+        else:
+            border_path =  self.find_path(self.team_border)
         if len(border_path)==0:
             return stop
         if border_path==None:
@@ -207,7 +213,7 @@ class OurPlayer(AbstractPlayer):
         else:
             self.round_index += 1
         self.read_score()
-        if self.round_index < 14 and self.me.index == 0:
+        if self.round_index < 14 and (self.me.index==0 or self.me.index==1):
             next_move = self.random_move()
 
         elif self.me.is_destroyer:
@@ -222,7 +228,7 @@ class OurPlayer(AbstractPlayer):
             else:
                 next_move = self.go_for_food()
             am = self.attack_move()
-            if am:
+            if am and self.border_mode:
                 next_move = am
         else:
             next_move = self.go_for_food()
