@@ -46,6 +46,7 @@ class OurPlayer(AbstractPlayer):
         self.tracking_idx = None
         self.path = []
         self.food_strategy = True
+        self.border_mode = True
 
     def find_path(self, thingslist):
         """ finds the path to the nearest object
@@ -139,8 +140,7 @@ class OurPlayer(AbstractPlayer):
                 except NoPathException:
                     return None
             else:
-                return self.go_for_food()
-
+                return None
             if possible_paths:
                 closest_enemy, path = min(possible_paths,
                                           key=lambda enemy_path: len(enemy_path[1]))
@@ -157,14 +157,20 @@ class OurPlayer(AbstractPlayer):
         self.read_score()
         if self.round_index < 14 and self.me.index == 0:
             return self.random_move()
-        #if self.me.is_destroyer:
-        #    return self.attack_move()
+        if self.me.is_destroyer:
+            am = self.attack_move()
+            if am:
+                return am
         if self.me.is_destroyer:
             if self.food_strategy:
-                m1 = self.go_for_boarder()
-                if m1 != stop:
-                    return m1
+                if self.border_mode:
+                    m1 = self.go_for_boarder()
+                    if m1 != stop:
+                        return m1
+                    else:
+                        return self.go_for_food()
                 else:
+                    self.border_mode = False
                     return self.go_for_food()
         else:
             dangerous_enemy_pos = [bot.current_pos
