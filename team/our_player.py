@@ -84,6 +84,13 @@ class OurPlayer(AbstractPlayer):
         except NoPathException:
             return None
 
+    def talk(self):
+        mess = message_list[0]
+        if mess[0] == self.name:
+            message_list = message_list[1:]
+            message_list.append(mess)
+            string = mess[0] + ": " + mess[1]
+            self.say(string)
 
     def start_chase(self):
         #self.say("Chase him!")
@@ -224,13 +231,8 @@ class OurPlayer(AbstractPlayer):
         
 
     def get_move(self):
-        self.say("Bot" + str(self.me.index))
-#        if self.round_index == 2 and self.me.index == 0:        #find some more clever conditions
-#            self.start_chase()
-#        if self.round_index == 5 and self.me.index == 2:        #find some more clever conditions
-#            self.stop_chase()
-#        if self.chase_mode:
-#            self.say("Chase!!")
+        
+
         if self.round_index is None:
             self.round_index = 0
         else:
