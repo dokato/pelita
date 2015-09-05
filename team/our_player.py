@@ -190,6 +190,8 @@ class OurPlayer(AbstractPlayer):
                 self.tracking_idx = closest_enemy.index
         if len(attackpath)==0:
             return self.random_move()
+        if len(attackpath)>0 and self.round_index%10==0:
+            return self.random_move()
         return diff_pos(self.current_pos, attackpath.pop())
 
     def get_move(self):
