@@ -77,7 +77,7 @@ class OurPlayer(AbstractPlayer):
         except NoPathException:
             return None
 
-    def go_for_boarder(self):
+    def go_for_border(self):
         border_path =  self.find_path(self.team_border)
         self.say("Border!!!!")
         if len(border_path)==0:
@@ -97,14 +97,27 @@ class OurPlayer(AbstractPlayer):
         return diff_pos(self.current_pos, food_path.pop())
 
     def safe_move(self, next_move):
-        dangerous_enemies = [bot for bot in self.enemy_bots if bot.is_destroyer]
-        print ('got dangerous enemies')
-        valid_moves = self.legal_moves.values()
-        enemy_valid_moves_values = [bot.legal_moves.values() for bot in dangerous_enemies]
-        enemy_valid_moves_values = [item for sublist in enemy_valid_moves_values for item in    sublist]
-        if [sum(x) for x in zip(next_move,self.current_pos)] in enemy_valid_moves_values:
-            valid_moves = [i for i in valid_moves if i not in enemy_valid_moves_values]
-            return self.rnd.choice(valid_moves)
+        
+        dangerous_enemies = [enemy for enemy in self.enemy_bots if enemy.is_destroyer]
+        valid_pos = self.legal_moves.values()
+        print(valid_pos)
+        enemy_valid_pos_values = [self.current_uni.legal_moves(enemy.current_pos).values() for enemy in dangerous_enemies]
+        enemy_valid_pos_values = [item for sublist in enemy_valid_pos_values for item in    sublist]
+        print(enemy_valid_pos_values)
+        next_pos = tuple([sum(x) for x in zip(next_move,self.current_pos)])
+        print (next_pos)
+        print("\n")
+        if next_pos in enemy_valid_pos_values:
+            valid_pos = [i for i in valid_pos if i not in enemy_valid_pos_values]
+            print ('valid escape', valid_pos)
+            if len(valid_pos) > 0:
+                next_pos = self.rnd.choice(valid_pos)
+            
+                next_move = tuple([x[0] - x[1] for x in zip(next_pos,self.current_pos)])
+                return(next_move)
+            else:
+                print("0!!")
+                return(stop)
         else:
             return(next_move) 
         #check that next_move isn't in enemy_valid_moves.values() (don't forget to either flatten or sth)
@@ -196,4 +209,5 @@ class OurPlayer(AbstractPlayer):
                 else:
                     return self.go_for_food()
         else:
+            next_move = self.go_for_food()
             return self.safe_move(next_move)
