@@ -100,37 +100,21 @@ class OurPlayer(AbstractPlayer):
         
         dangerous_enemies = [enemy for enemy in self.enemy_bots if enemy.is_destroyer]
         valid_pos = self.legal_moves.values()
-        print(valid_pos)
         enemy_valid_pos_values = [self.current_uni.legal_moves(enemy.current_pos).values() for enemy in dangerous_enemies]
         enemy_valid_pos_values = [item for sublist in enemy_valid_pos_values for item in    sublist]
-        print(enemy_valid_pos_values)
         next_pos = tuple([sum(x) for x in zip(next_move,self.current_pos)])
-        print (next_pos)
-        print("\n")
         if next_pos in enemy_valid_pos_values:
             valid_pos = [i for i in valid_pos if i not in enemy_valid_pos_values]
-            print ('valid escape', valid_pos)
             if len(valid_pos) > 0:
                 next_pos = self.rnd.choice(valid_pos)
             
                 next_move = tuple([x[0] - x[1] for x in zip(next_pos,self.current_pos)])
                 return(next_move)
             else:
-                print("0!!")
                 return(stop)
         else:
             return(next_move) 
-        #check that next_move isn't in enemy_valid_moves.values() (don't forget to either flatten or sth)
-        for de in dangerous_enemies:
-            print(self.current_pos, dd)
-            #list comp to filter valid_moves based on the valid moves of the enemy
-            #pick a random move from valid_moves
-            if (manhattan_dist(self.current_pos, dd) <= 2):
-                valid_moves = [i for i in valid_moves if i != next_move and i != (0,0)]
-                print ('too close')
-                return self.rnd.choice(valid_moves)
-            else:
-                return next_move
+        
 
     def random_move(self):
         self.say("Let the fight begin!")
