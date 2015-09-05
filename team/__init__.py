@@ -12,7 +12,12 @@ from .our_player import BorderPlayer, OurPlayer
 # the first and second player.
 
 def factory():
-    return SimpleTeam("group3", OurPlayer(), OurPlayer())
+    player1 = OurPlayer()
+    player2 = OurPlayer()
+    team = SimpleTeam("NoNameYet", player1, player2)
+    player1.partner = player2
+    player2.partner = player1
+    return team
 
 # For testing purposes, one may use alternate factory methods::
 #

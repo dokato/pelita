@@ -46,6 +46,7 @@ class OurPlayer(AbstractPlayer):
         self.tracking_idx = None
         self.path = []
         self.food_strategy = True
+        self.chase_mode = False
 
     def find_path(self, thingslist):
         """ finds the path to the nearest object
@@ -77,9 +78,21 @@ class OurPlayer(AbstractPlayer):
         except NoPathException:
             return None
 
+    def start_chase(self):
+        self.say("Chase him!")
+        self.chase_mode = True
+        if self.partner:
+            self.partner.chase_mode = True
+    
+    def stop_chase(self):
+        self.say("Stopit!")
+        self.chase_mode = False
+        if self.partner:
+            self.partner.chase_mode = False
+    
     def go_for_boarder(self):
         border_path =  self.find_path(self.team_border)
-        self.say("Border!!!!")
+        #self.say("Border!!!!")
         if len(border_path)==0:
             return stop
         if border_path==None:
@@ -88,7 +101,7 @@ class OurPlayer(AbstractPlayer):
     
     def go_for_food(self):
         food_path =  self.find_path(self.enemy_food)
-        self.say("Omnomnom!!!!")
+        #self.say("Omnomnom!!!!")
         if food_path==None:
             return stop
         if len(food_path)==0:
@@ -96,7 +109,7 @@ class OurPlayer(AbstractPlayer):
         return diff_pos(self.current_pos, food_path.pop())
 
     def random_move(self):
-        self.say("Let's the fight begin!")
+        #self.say("Let's the fight begin!")
         legal_moves = self.legal_moves
         # Remove stop
         try:
@@ -150,6 +163,12 @@ class OurPlayer(AbstractPlayer):
         return diff_pos(self.current_pos, attackpath.pop())
 
     def get_move(self):
+        if self.round_index == 2 and self.me.index == 0:        #find some more clever conditions
+            self.start_chase()
+        if self.round_index == 5 and self.me.index == 2:        #find some more clever conditions
+            self.stop_chase()
+        if self.chase_mode:
+            self.say("Chase!!")
         if self.round_index is None:
             self.round_index = 0
         else:
@@ -157,6 +176,7 @@ class OurPlayer(AbstractPlayer):
         self.read_score()
         if self.round_index < 14 and self.me.index == 0:
             return self.random_move()
+        
         #if self.me.is_destroyer:
         #    return self.attack_move()
         if self.me.is_destroyer:
@@ -167,10 +187,11 @@ class OurPlayer(AbstractPlayer):
                 else:
                     return self.go_for_food()
         else:
-            dangerous_enemy_pos = [bot.current_pos
-                for bot in self.enemy_bots if bot.is_destroyer]
-            next_move = self.go_for_food()
-            for dd in dangerous_enemy_pos:
-                if (manhattan_dist(self.current_pos, dd) <= 2):
-                    return tuple((-1)*x for x in next_move)
-            return next_move
+            return self.go_for_food()
+            #dangerous_enemy_pos = [bot.current_pos
+            #    for bot in self.enemy_bots if bot.is_destroyer]
+            #next_move = self.go_for_food()
+            #for dd in dangerous_enemy_pos:
+            #    if (manhattan_dist(self.current_pos, dd) <= 2):
+            #        return tuple((-1)*x for x in next_move)
+            #return next_move
