@@ -116,17 +116,18 @@ class OurPlayer(AbstractPlayer):
         if border_path==None:
             return stop
         return diff_pos(self.current_pos, border_path.pop())
-    
+
     def go_for_food(self):
         food_path =  self.find_path(self.enemy_food)
-
-        #self.say("Omnomnom!!!!")
+        mandist = manhattan_dist(self.me.current_pos, self.partner.me.current_pos)
+        if mandist <=3 and self.round_index<150:
+            distlst = [x for x in self.enemy_food if manhattan_dist(x, self.partner.me.current_pos)>5]
+            food_path =  self.find_path(distlst)
         if food_path==None:
-            return stop
+            return self.random_move()
         if len(food_path)==0:
-            return stop
+            return self.random_move()
         return diff_pos(self.current_pos, food_path.pop())
-
 
     def safe_move(self, next_move, dontwanna=None):
         #get all the enemy bots that are destroyers
