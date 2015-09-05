@@ -48,6 +48,7 @@ class OurPlayer(AbstractPlayer):
         self.food_strategy = True
         self.chase_mode = False
         self.border_mode = True
+        self.chase_count = 0
 
     def find_path(self, thingslist):
         """ finds the path to the nearest object
@@ -81,13 +82,15 @@ class OurPlayer(AbstractPlayer):
 
 
     def start_chase(self):
-        self.say("Chase him!")
+        #self.say("Chase him!")
         self.chase_mode = True
+        self.chase_count += 1
         if self.partner:
             self.partner.chase_mode = True
+            self.partner.chase_count += 1
     
     def stop_chase(self):
-        self.say("Stopit!")
+        #self.say("Stopit!")
         self.chase_mode = False
         if self.partner:
             self.partner.chase_mode = False
@@ -133,7 +136,7 @@ class OurPlayer(AbstractPlayer):
         
 
     def random_move(self):
-        self.say("Let the fight begin!")
+        #self.say("Let the fight begin!")
 
         legal_moves = self.legal_moves
         # Remove stop
@@ -185,8 +188,21 @@ class OurPlayer(AbstractPlayer):
         if len(attackpath)==0:
             return self.random_move()
         return diff_pos(self.current_pos, attackpath.pop())
+    
+    def get_distance_to_me(self, pos):
+        return manhattan_dist(self.current_pos, pos)
+    
+    def get_closest_eatable_enemy_pos(self):
+        enemies = [(enemy.current_pos, self.get_distance_to_me(enemy.current_pos)) for enemy in self.enemy_bots if enemy.is_harvester]
+        
+        if len(enemies) != 0:
+            enemies = sorted(enemies, key=lambda x: x[1])
+            return enemies[0]
+        return None
+        
 
     def get_move(self):
+        self.say("Bot" + str(self.me.index))
 #        if self.round_index == 2 and self.me.index == 0:        #find some more clever conditions
 #            self.start_chase()
 #        if self.round_index == 5 and self.me.index == 2:        #find some more clever conditions
@@ -201,28 +217,42 @@ class OurPlayer(AbstractPlayer):
         if self.round_index < 14 and self.me.index == 0:
             next_move = self.random_move()
 
+
+        #switch both players to chase mode, if both are close but on two sides
+        en = self.get_closest_eatable_enemy_pos()
+        if en:
+            other_bot = [x for x in self.team_bots if x != self.me][0]
+            dist_enemy_to_other_bot = manhattan_dist(other_bot.current_pos, en[0])
+
+            if (en[1] <= 5) and (dist_enemy_to_other_bot <= 5) and (self.get_distance_to_me(other_bot.current_pos) > en[1]):
+                self.start_chase()
+                if self.chase_count > 5:
+                    self.stop_chase()
+            else:
+                self.stop_chase()
+
+            if self.chase_mode:
+                self.say("Chasemode")
+                return self.safe_move(self.attack_move())
+            
         if self.me.is_destroyer:
-            am = self.attack_move()
-            if am:
-                next_move = am
-        if self.me.is_destroyer:
-            #m1 = self.go_for_boarder()
-            #if m1 != stop:
-            #    return m1
-            #else:
-            next_move = self.go_for_food()
+            #am = self.attack_move()
+            #if am:
+            #    next_move = am
             if self.food_strategy:
                 if self.border_mode:
                     m1 = self.go_for_boarder()
                     if m1 != stop:
+                        self.say("Boarder")
                         next_move = m1
                     else:
+                        self.say("Food")
                         next_move = self.go_for_food()
                 else:
+                    self.say("Food")
                     self.border_mode = False
                     next_move = self.go_for_food()
         else:
             next_move = self.go_for_food()
         
         return self.safe_move(next_move)
-
