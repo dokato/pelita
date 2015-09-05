@@ -124,7 +124,7 @@ class OurPlayer(AbstractPlayer):
             return self.go_for_food()
         else:
             next_move = self.go_for_food()
-            return self.safe_move(next_move, dangerous_enemy_pos)
+            return self.safe_move(next_move)
             
             
             return next_move
