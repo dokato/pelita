@@ -153,6 +153,10 @@ class OurPlayer(AbstractPlayer):
                 return(next_move)
             #if there are no valid positions, pick a random legal move
             else:
+                try:    
+                    self.say("".join(["I love you, ",  + str(self.partner.name)]))
+                except:
+                    pass
                 return(self.rnd.choice(list(self.legal_moves.keys())))
         else:
             return(next_move) 
@@ -228,13 +232,7 @@ class OurPlayer(AbstractPlayer):
         
 
     def get_move(self):
-        #self.say("I love you, ",  + str(self.me.index))
-#        if self.round_index == 2 and self.me.index == 0:        #find some more clever conditions
-#            self.start_chase()
-#        if self.round_index == 5 and self.me.index == 2:        #find some more clever conditions
-#            self.stop_chase()
-#        if self.chase_mode:
-#            self.say("Chase!!")
+
         if self.round_index is None:
             self.round_index = 0
         else:
@@ -272,7 +270,7 @@ class OurPlayer(AbstractPlayer):
             am = self.attack_move()
             if am and not self.border_mode and len(self.enemy_food) < self.FOOD_MIN:
                 next_move = am
-                self.say("".join(["I'm going for them, ", self.partner.name, '!!']))
+                self.say("".join(["'m going for them, ", self.partner.name, '!!']))
         else:
             next_move = self.go_for_food()
         final_move = self.safe_move(next_move)
@@ -281,5 +279,5 @@ class OurPlayer(AbstractPlayer):
         st = list(set(self.memory))
         if len(self.memory)>4 and len(st) <= 2:
             final_move = self.safe_move(next_move, st) 
-        self.memory[-1] = final_move
+            self.memory[-1] = final_move
         return self.safe_move(next_move)
