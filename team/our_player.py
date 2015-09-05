@@ -187,12 +187,12 @@ class OurPlayer(AbstractPlayer):
         return diff_pos(self.current_pos, attackpath.pop())
 
     def get_move(self):
-        if self.round_index == 2 and self.me.index == 0:        #find some more clever conditions
-            self.start_chase()
-        if self.round_index == 5 and self.me.index == 2:        #find some more clever conditions
-            self.stop_chase()
-        if self.chase_mode:
-            self.say("Chase!!")
+#        if self.round_index == 2 and self.me.index == 0:        #find some more clever conditions
+#            self.start_chase()
+#        if self.round_index == 5 and self.me.index == 2:        #find some more clever conditions
+#            self.stop_chase()
+#        if self.chase_mode:
+#            self.say("Chase!!")
         if self.round_index is None:
             self.round_index = 0
         else:
