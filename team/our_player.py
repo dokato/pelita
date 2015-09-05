@@ -92,7 +92,7 @@ class OurPlayer(AbstractPlayer):
         if self.partner:
             self.partner.chase_mode = False
     
-    def go_for_boarder(self):
+    def go_for_border(self):
         border_path =  self.find_path(self.team_border)
         #self.say("Border!!!!")
         if len(border_path)==0:
@@ -105,7 +105,6 @@ class OurPlayer(AbstractPlayer):
         food_path =  self.find_path(self.enemy_food)
 
         #self.say("Omnomnom!!!!")
-
         if food_path==None:
             return stop
         if len(food_path)==0:
@@ -114,18 +113,26 @@ class OurPlayer(AbstractPlayer):
 
 
     def safe_move(self, next_move):
-        
+        #get all the enemy bots that are destroyers
         dangerous_enemies = [enemy for enemy in self.enemy_bots if enemy.is_destroyer]
+        #get all the positions where you can move to
         valid_pos = self.legal_moves.values()
+        #get all the positions where dangerous enemies can move to (a list of two sublists)
         enemy_valid_pos_values = [self.current_uni.legal_moves(enemy.current_pos).values() for enemy in dangerous_enemies]
+        #flatten list
         enemy_valid_pos_values = [item for sublist in enemy_valid_pos_values for item in    sublist]
+        #convert your planned next move to a position
         next_pos = tuple([sum(x) for x in zip(next_move,self.current_pos)])
+        #if your next position intersects with the enemy position
         if next_pos in enemy_valid_pos_values:
+            #get all positions you could move to that are not enemy legal moves and are not the current position
             valid_pos = [i for i in valid_pos if i not in enemy_valid_pos_values and i != self.current_pos]
+            #pick any such safe position
             if len(valid_pos) > 0:
                 next_pos = self.rnd.choice(valid_pos)
                 next_move = tuple([x[0] - x[1] for x in zip(next_pos,self.current_pos)])
                 return(next_move)
+            #if there are no valid positions, stop
             else:
                 return(stop)
         else:
@@ -206,14 +213,14 @@ class OurPlayer(AbstractPlayer):
             if am:
                 next_move = am
         if self.me.is_destroyer:
-            #m1 = self.go_for_boarder()
+            #m1 = self.go_for_border()
             #if m1 != stop:
             #    return m1
             #else:
             next_move = self.go_for_food()
             if self.food_strategy:
                 if self.border_mode:
-                    m1 = self.go_for_boarder()
+                    m1 = self.go_for_border()
                     if m1 != stop:
                         next_move = m1
                     else:
