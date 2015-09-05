@@ -49,7 +49,7 @@ class OurPlayer(AbstractPlayer):
         self.path = []
         self.chase_mode = False
         self.border_mode = True
-        self.FOOD_MIN = 10
+        self.FOOD_MIN = len(self.enemy_food)/3
 
     def find_path(self, thingslist):
         """ finds the path to the nearest object
@@ -216,10 +216,8 @@ class OurPlayer(AbstractPlayer):
         else:
             self.round_index += 1
         self.read_score()
-        if self.round_index < 14 and (self.me.index==0 or self.me.index==1):
-            next_move = self.random_move()
 
-        elif self.me.is_destroyer:
+        if self.me.is_destroyer:
 
             if self.border_mode:
                 m1 = self.go_for_border()
